@@ -1,0 +1,15 @@
+**/*.log
+# Do not commit any pdfs
+**/*.pdf
+# Do not distribute secret stuff
+**/*secret.env
+# Ignore MacOS shenanigans
+**/.DS_Store
+# Do not commit .vscode settings
+.vscode
+
+# GITHUB TEMPLATE:
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
