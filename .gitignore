@@ -1,6 +1,7 @@
 **/*.log
-# Do not commit any pdfs
+# Do not commit any intermediary data (pdf, pickle)
 **/*.pdf
+**/*.pkl
 # Do not distribute secret stuff
 **/*secret.env
 # Ignore MacOS shenanigans
