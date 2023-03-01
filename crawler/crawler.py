@@ -9,7 +9,6 @@ from utils import (
     download_pdf,
 )
 import os
-import pickle
 
 # Config
 ROOT_URL = "https://www.schlieren.ch"
@@ -31,9 +30,9 @@ n = len(table_data)
 for k, row in enumerate(table_data, 1):
     url_item = ROOT_URL + re.search(r"href=\"(.*?)\"", row["title"]).groups()[0]
     id_item = url_item.split("/")[-1]
+    path_item = os.path.join(ITEM_DOWNLOAD_FOLDER, f"{id_item}.json")
 
     # Check if already an item file exists. If this is the case, we can skip to next entry.
-    path_item = os.path.join(ITEM_DOWNLOAD_FOLDER, f"{id_item}.pkl")
     if os.path.isfile(path_item):
         print(f"({k}/{n}) Item {id_item} already exists - SKIP")
         continue
@@ -77,9 +76,10 @@ for k, row in enumerate(table_data, 1):
     }
     # Be a little defensive to know what we deal with
     assert_integrity_of_item(item)
-    # Pickle item
-    with open(path_item, "wb") as fp:
-        pickle.dump(item, fp)
+
+    # Persist item as json
+    with open(path_item, "w") as outfile:
+        outfile.write(json.dumps(item, indent=4))
     print(f"    Processing finished. Item saved to {path_item}")
 
 print("ALL DONE")
