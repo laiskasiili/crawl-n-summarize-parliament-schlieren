@@ -15,6 +15,7 @@ from constants import (
     MOTION,
 )
 import re
+import os
 
 
 def with_retry(max_retries=5, retry_wait=3):
@@ -62,13 +63,13 @@ def delayed_fetch(url, implicit_wait_time_s=3):
     return driver.page_source
 
 
-def get_author(soup, item):
+def get_author(soup, category):
     # category Vorlage has no author field on website and is always from author Stadtrat.
-    if item["category"] in [VORLAGE]:
+    if category in [VORLAGE]:
         return "Stadtrat"
-    if item["category"] in [BESCHLUSS, PROTOKOLL]:
+    if category in [BESCHLUSS, PROTOKOLL]:
         return "Parlament"
-    if item["category"] in [ANTRAG]:
+    if category in [ANTRAG]:
         return "Büro Parlament"
     return (
         soup.find("dt", string=re.compile("Verfasser")).next_sibling.get_text().strip()
@@ -84,24 +85,31 @@ def get_url_parliament(soup):
     return parliament_url
 
 
-def assert_integrity_of_items(items):
+def assert_integrity_of_item(item):
     """Assert that item dicts do not contain None and only the
     specified subset of categories."""
-    assert all(None not in set(item.values()) for item in items)
-    assert all(
-        item["category"]
-        in set(
-            [
-                POSTULAT,
-                PROTOKOLL,
-                BESCHLUSSANTRAG,
-                INTERPELLATION,
-                VORLAGE,
-                ANTRAG,
-                BESCHLUSS,
-                KLEINE_ANFRAGE,
-                MOTION,
-            ]
-        )
-        for item in items
+    assert None not in set(item.values())
+    assert item["category"] in set(
+        [
+            POSTULAT,
+            PROTOKOLL,
+            BESCHLUSSANTRAG,
+            INTERPELLATION,
+            VORLAGE,
+            ANTRAG,
+            BESCHLUSS,
+            KLEINE_ANFRAGE,
+            MOTION,
+        ]
     )
+
+
+def download_pdf(url, path):
+    # Only download pdf if it does not already exists.
+    if not os.path.isfile(path):
+        print(f"    Downloading pdf to {path}")
+        with open(path, "wb") as f:
+            f.write(instant_fetch(url))
+    else:
+        print(f"    Already exists - skipping download for {path}")
+    return path
