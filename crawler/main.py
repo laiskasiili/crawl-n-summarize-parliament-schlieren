@@ -1,7 +1,8 @@
 from multiprocessing.pool import ThreadPool
-from constants import ROOT_URL, DATAJSON_FILE, DATAJSON_FRONTEND_FILE
+from constants import ROOT_URL, DATAJSON_FILE, DATAJSON_FILE_FRONTEND, ASOFJSON_FILE, ASOFJSON_FILE_FRONTEND
 from utils import get_raw_items_from_main_table, process_item, write_json
 import shutil
+from datetime import datetime
 
 table_url = ROOT_URL + "/politbusiness"
 print(f"1) REQUEST ITEMS... ({table_url})")
@@ -13,9 +14,25 @@ with ThreadPool(processes=20) as pool:
     processed_items = [item for item in pool.map(process_item, raw_items)]
 
 print("3) GENERATE data.json...")
-write_json({"data": processed_items}, DATAJSON_FILE)
+datajson_items = []
+for item in processed_items:
+    datajson_items.append(
+        {
+            "date": item["date"],
+            "author": item["author"],
+            "category": item["category"],
+            "title__display": f'<a target="_blank" href="{item["url_item"]}">{item["title"]}</a>',
+            "title": item["category"] + item["title"],
+            "summary__display": item["summary"] + f' <a target="_blank" href="{item["url_pdf"]}">(Original PDF)</a>',
+            "summary": item["summary"],
+        }
+    )
+asof = datetime.now().strftime("%Y-%m-%d")
+write_json({"asof": asof, "data": datajson_items}, DATAJSON_FILE)
+write_json({"asof": asof}, ASOFJSON_FILE)
 
 print("4) COPY data.json...")
-shutil.copyfile(DATAJSON_FILE, DATAJSON_FRONTEND_FILE)
+shutil.copyfile(DATAJSON_FILE, DATAJSON_FILE_FRONTEND)
+shutil.copyfile(ASOFJSON_FILE, ASOFJSON_FILE_FRONTEND)
 
 print("ALL DONE!")
