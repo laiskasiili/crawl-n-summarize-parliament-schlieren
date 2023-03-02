@@ -137,8 +137,8 @@ def summarize_text(text):
         try:
             summary = openai.Completion.create(
                 model="text-davinci-003",
-                prompt=f"Summarize this for a second-grade student: {text}",
-                temperature=0.5,
+                prompt=f"{text} \n\nTl;dr",
+                temperature=0.4,
                 max_tokens=400,
                 best_of=2,
             )["choices"][0]["text"]
@@ -168,7 +168,7 @@ def get_pdf_text(path):
             .strip()
         )
         # Get rid of multiple whitespaces using join/split pattern.
-        text = " ".join(text.split()).strip()
+        text = " ".join(text.split())
     return text
 
 
