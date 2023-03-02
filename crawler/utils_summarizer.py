@@ -1,6 +1,7 @@
+import os
+
 import openai
 import PyPDF2
-import os
 
 api_key = os.getenv("OPENAPI_KEY")
 assert api_key
