@@ -12,12 +12,25 @@
 		"./secret.env"
 	],
 	// After container is created, install poetry dependencies
-	"postCreateCommand": "poetry install",
+	"postCreateCommand": "poetry install --no-root",
 	"customizations": {
 		// Configure properties specific to VS Code.
 		"vscode": {
 			"settings": {
-				"editor.formatOnSave": true
+				"python.formatting.provider": "black",
+				"editor.formatOnSave": true,
+				"python.formatting.blackArgs": [
+					"--line-length=160"
+				],
+				"isort.args": [
+					"--profile",
+					"black"
+				],
+				"[python]": {
+					"editor.codeActionsOnSave": {
+						"source.organizeImports": true
+					}
+				}
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
