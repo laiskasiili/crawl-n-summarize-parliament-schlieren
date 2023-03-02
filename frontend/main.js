@@ -3,11 +3,11 @@ console.log('main.js')
 $(document).ready(function () {
     // Create search input element on top of table for each column
     $('#table thead th.colSearch').each(function () {
-        $(this).html('<input type="text" placeholder="Search" />');
+        $(this).html('<input type="text" placeholder="Search column" />');
     });
     // Create table
     var table = $('#table').DataTable({
-        dom: 'Brtlip',
+        dom: 'Blprtlip',
         buttons: {
             buttons: [
                 {
@@ -60,6 +60,9 @@ $(document).ready(function () {
     table.buttons().container().appendTo( $('#mainHeader') );
     // Remove "dt-buttons" from container because it messes up layouting
     document.querySelector(".dt-buttons.btn-group.flex-wrap").classList.remove("dt-buttons");
+    // Small manipulations to have top pagination and nr display dropdown next to each other
+    document.querySelector("#table_length").classList.add("float-start");
+    document.querySelector("#table_paginate").classList.add("float-end");
 
     // Load and display asof timestamp
     fetch('asof.json')
