@@ -18,7 +18,6 @@
 		"vscode": {
 			"settings": {
 				"python.formatting.provider": "black",
-				"editor.formatOnSave": true,
 				"python.formatting.blackArgs": [
 					"--line-length=120"
 				],
@@ -27,6 +26,7 @@
 					"black"
 				],
 				"[python]": {
+					"editor.formatOnSave": true,
 					"editor.codeActionsOnSave": {
 						"source.organizeImports": true
 					}
@@ -36,7 +36,8 @@
 			"extensions": [
 				"ms-python.python",
 				"ms-vscode.live-server",
-				"mathematic.vscode-pdf"
+				"mathematic.vscode-pdf",
+				"ritwickdey.liveserver"
 			]
 		}
 	}
