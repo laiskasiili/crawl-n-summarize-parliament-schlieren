@@ -12,6 +12,6 @@ class CategoryContainer:
 
 THREAD_PROCESSES = 10
 ROOT_URL = "https://www.schlieren.ch"
-ITEM_DOWNLOAD_FOLDER = "./data/item_download"
-PDF_DOWNLOAD_FOLDER = "./data/pdf_download"
-ITEMS_PROCESSED_FOLDER = "./data/item_processed"
+ITEM_STORAGE_FOLDER = "./data/item_storage"
+PDF_STORAGE_FOLDER = "./data/pdf_storage"
+DATAJSON_FILE = "./data/data.json"

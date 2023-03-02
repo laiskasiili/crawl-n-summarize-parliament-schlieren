@@ -11,6 +11,7 @@ openai = "^0.26.5"
 pypdf2 = "^3.0.1"
 beautifulsoup4 = "^4.11.2"
 selenium = "^4.8.2"
+ocrmypdf = "^14.0.3"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"

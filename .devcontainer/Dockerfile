@@ -19,4 +19,9 @@ ENV PATH="${PATH}:${POETRY_VENV}/bin"
 RUN apt-get update && apt-get install -y firefox-esr
 RUN wget -c https://github.com/mozilla/geckodriver/releases/download/v0.32.2/geckodriver-v0.32.2-linux-aarch64.tar.gz -O - | tar xz -C /usr/local/bin/
 
+# Install dependencies for pdf text extraction in german
+# https://pypi.org/project/ocrmypdf/
+#####################################################
+RUN apt-get update && apt-get install -y tesseract-ocr tesseract-ocr-deu ghostscript
+
 CMD ["bash"]
