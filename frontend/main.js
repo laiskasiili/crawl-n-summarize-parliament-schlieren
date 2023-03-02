@@ -58,6 +58,8 @@ $(document).ready(function () {
         });
     // Link excel download to dedicated button
     table.buttons().container().appendTo( $('#mainHeader') );
+    // Remove "dt-buttons" from container because it messes up layouting
+    document.querySelector(".dt-buttons.btn-group.flex-wrap").classList.remove("dt-buttons");
 
     // Load and display asof timestamp
     fetch('asof.json')
