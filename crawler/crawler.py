@@ -72,7 +72,7 @@ for k, row in enumerate(table_data, 1):
         "path_pdf": download_pdf(url_pdf, path_pdf),
         "follow_up_candidate": "beantwort"
         in f"{title.lower()}{download_tag.string.lower()}",
-        "url_parliament": ROOT_URL + get_url_parliament(soup),
+        "url_parliament": get_url_parliament(soup, ROOT_URL),
     }
     # Be a little defensive to know what we deal with
     assert_integrity_of_item(item)

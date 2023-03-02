@@ -76,12 +76,12 @@ def get_author(soup, category):
     )
 
 
-def get_url_parliament(soup):
+def get_url_parliament(soup, root_url):
     # Some items do have parliament url, others do not.
     parliament_url = ""
     td_tags = soup.find_all("td", class_="icms-datatable-col-name")
     if len(td_tags) > 0:
-        parliament_url = td_tags[0].find("a")["href"]
+        parliament_url = root_url + td_tags[0].find("a")["href"]
     return parliament_url
 
 
