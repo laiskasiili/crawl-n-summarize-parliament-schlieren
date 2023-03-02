@@ -57,10 +57,11 @@ def delayed_fetch(url, implicit_wait_time_s=3):
     # is initiated by javascript after page load which requests cannot handle.
     opts = FirefoxOptions()
     opts.add_argument("--headless")
-    driver = webdriver.Firefox(options=opts)
-    driver.implicitly_wait(implicit_wait_time_s)
-    driver.get(url)
-    return driver.page_source
+    with webdriver.Firefox(options=opts) as driver:
+        driver.implicitly_wait(implicit_wait_time_s)
+        driver.get(url)
+        content = driver.page_source
+    return content
 
 
 def get_author(soup, category):
