@@ -10,7 +10,6 @@ class CategoryContainer:
     MOTION = "motion"
 
 
-THREAD_PROCESSES = 10
 ROOT_URL = "https://www.schlieren.ch"
 ITEM_STORAGE_FOLDER = "./data/item_storage"
 PDF_STORAGE_FOLDER = "./data/pdf_storage"

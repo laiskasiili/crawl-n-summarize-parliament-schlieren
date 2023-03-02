@@ -8,9 +8,9 @@ import PyPDF2
 
 import requests
 from constants import CategoryContainer as CC
+from constants import ITEM_STORAGE_FOLDER, PDF_STORAGE_FOLDER, ROOT_URL
 from selenium.webdriver import FirefoxOptions
 from bs4 import BeautifulSoup
-from constants import ITEM_STORAGE_FOLDER, PDF_STORAGE_FOLDER, ROOT_URL
 from selenium import webdriver
 
 
@@ -123,11 +123,6 @@ def get_raw_items_from_main_table(table_url):
     return table_data
 
 
-def estimate_num_tokens(text):
-    # A token roughly corresponds to 4 character components of words.
-    return sum(len(t) // 4 + 1 for t in text.split())
-
-
 def summarize_text(text):
     # openai model works with a maximum of 4096 tokens, which includes
     # length of input AND output. We allow a maximum of 500 tokens in
@@ -136,19 +131,23 @@ def summarize_text(text):
     api_key = os.getenv("OPENAPI_KEY")
     assert api_key, "Openai api key must be available in env variable OPENAPI_KEY"
     openai.api_key = api_key
-    too_long = bool(estimate_num_tokens(text) > 3500)
-    if too_long:
-        text = text[:9000]
-    summary = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Summarize the this german text briefly and answer in german in no more than 120 words: {text}",
-        temperature=0.5,
-        max_tokens=500,
-        best_of=3,
-    )["choices"][0]["text"]
-    if too_long:
-        summary = "Text sehr lange, Zusammenfassung widerspiegelt nicht gesamten Text: " + summary
-    return summary.replace("\n", "").replace("\r", "").strip()
+    summary_prefix = ""
+    while True:
+        try:
+            summary = openai.Completion.create(
+                model="text-davinci-003",
+                prompt=f"Summarize this for a second-grade student: {text}",
+                temperature=0.5,
+                max_tokens=400,
+                best_of=3,
+            )["choices"][0]["text"]
+            break
+        except openai.error.InvalidRequestError as e:
+            summary_prefix = "(Text lange, Zusammenfassung widerspiegelt nicht gesamten Text) "
+            text = text[: (len(text) - 2000)]
+            print(f"Shorten text: {len(text)+2000} ->{len(text)}")
+    summary = summary.replace("\n", " ").replace("\r", " ").replace("\t", " ").strip()
+    return summary_prefix + " ".join(summary.split())
 
 
 def download_pdf(url, path):
@@ -161,7 +160,15 @@ def download_pdf(url, path):
 def get_pdf_text(path):
     with open(path, "rb") as f:
         pdf = PyPDF2.PdfReader(f)
-        text = " ".join(page.extract_text() for page in pdf.pages).replace("\n", " ").replace("\r", "").strip()
+        text = (
+            " ".join(page.extract_text() for page in pdf.pages)
+            .replace("\n", " ")
+            .replace("\r", " ")
+            .replace("\t", " ")
+            .strip()
+        )
+        # Get rid of multiple whitespaces using join/split pattern.
+        text = " ".join(text.split()).strip()
     return text
 
 
@@ -184,56 +191,58 @@ def get_pdf_summary(url_pdf, path_pdf):
 
 
 def process_item(raw_item):
-    url_item = ROOT_URL + re.search(r"href=\"(.*?)\"", raw_item["title"]).groups()[0]
-    id_item = url_item.split("/")[-1]
-    path_item = os.path.join(ITEM_STORAGE_FOLDER, f"{id_item}.json")
+    try:
+        url_item = ROOT_URL + re.search(r"href=\"(.*?)\"", raw_item["title"]).groups()[0]
+        id_item = url_item.split("/")[-1]
+        path_item = os.path.join(ITEM_STORAGE_FOLDER, f"{id_item}.json")
+        # Check if already an item file exists. If this is the case, we can skip to next entry.
+        if os.path.isfile(path_item):
+            print(f"[SKIP] {id_item}", flush=True)
+            return read_json(path_item)
+        print(f"[START] {id_item}", flush=True)
 
-    print(f"[START] {id_item}", flush=True)
+        # Fetch soup from detail page of item:
+        # We use delayed fetch here as well, because some items do
+        # have links to the corresponding parliament meeting. This
+        # information is again located in a table that is only
+        # initialized via javascript after initial load.
+        html = delayed_fetch(url_item)
+        soup = BeautifulSoup(html, features="html.parser")
+        # There are two a tags to download the pdf on the page, one of which is consistently labelled
+        # "Download". We are interested in the other, because it might contain hints for a
+        # follow-up candidate ifit contains the word "Beantwortung".
+        download_tag = soup.find(
+            lambda tag: tag.has_attr("href") and "_doc" in tag["href"] and "Download" not in tag.string
+        )
+        category = raw_item.get("_kategorieId-sort")
+        title = soup.find("dt", string="Beschreibung").next_sibling.get_text().strip()
+        url_pdf = ROOT_URL + download_tag["href"]
+        id_pdf = url_pdf.split("/")[-1]
+        path_pdf = os.path.join(PDF_STORAGE_FOLDER, f"{id_pdf}.pdf")
+        # Construct item dict
+        item = {
+            "id_item": id_item,
+            "url_item": url_item,
+            "path_item": path_item,
+            "category": category,
+            "date": raw_item.get("_geschaeftsdatum-sort"),
+            "title": title,
+            "author": get_author(soup, category),
+            "id_pdf": id_pdf,
+            "url_pdf": url_pdf,
+            "path_pdf": path_pdf,
+            "follow_up_candidate": "beantwort" in f"{title.lower()}{download_tag.string.lower()}",
+            "url_parliament": get_url_parliament(soup, ROOT_URL),
+            "summary": get_pdf_summary(url_pdf, path_pdf),
+        }
+        # Be a little defensive to know what we deal with
+        assert_integrity_of_item(item)
 
-    # Check if already an item file exists. If this is the case, we can skip to next entry.
-    if os.path.isfile(path_item):
-        return read_json(path_item)
+        # Persist item as json
+        write_json(item, path_item)
 
-    # Fetch soup from detail page of item:
-    # We use delayed fetch here as well, because some items do
-    # have links to the corresponding parliament meeting. This
-    # information is again located in a table that is only
-    # initialized via javascript after initial load.
-    html = delayed_fetch(url_item)
-    soup = BeautifulSoup(html, features="html.parser")
-    # There are two a tags to download the pdf on the page, one of which is consistently labelled
-    # "Download". We are interested in the other, because it might contain hints for a
-    # follow-up candidate ifit contains the word "Beantwortung".
-    download_tag = soup.find(
-        lambda tag: tag.has_attr("href") and "_doc" in tag["href"] and "Download" not in tag.string
-    )
-    category = raw_item.get("_kategorieId-sort")
-    title = soup.find("dt", string="Beschreibung").next_sibling.get_text().strip()
-    url_pdf = ROOT_URL + download_tag["href"]
-    id_pdf = url_pdf.split("/")[-1]
-    path_pdf = os.path.join(PDF_STORAGE_FOLDER, f"{id_pdf}.pdf")
-    # Construct item dict
-    item = {
-        "id_item": id_item,
-        "url_item": url_item,
-        "path_item": path_item,
-        "category": category,
-        "date": raw_item.get("_geschaeftsdatum-sort"),
-        "title": title,
-        "author": get_author(soup, category),
-        "id_pdf": id_pdf,
-        "url_pdf": url_pdf,
-        "path_pdf": path_pdf,
-        "follow_up_candidate": "beantwort" in f"{title.lower()}{download_tag.string.lower()}",
-        "url_parliament": get_url_parliament(soup, ROOT_URL),
-        "summary": get_pdf_summary(url_pdf, path_pdf),
-    }
-    # Be a little defensive to know what we deal with
-    assert_integrity_of_item(item)
+        print(f"[DONE] {id_item}", flush=True)
 
-    # Persist item as json
-    write_json(item, path_item)
-
-    print(f"[DONE] {id_item}", flush=True)
-
-    return item
+        return item
+    except Exception as e:
+        raise Exception(f"ERROR for {id_item} ({url_item}): {e}")
