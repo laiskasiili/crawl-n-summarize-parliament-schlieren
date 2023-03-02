@@ -4,7 +4,7 @@ from utils import get_raw_items_from_main_table, process_item, write_json
 
 table_url = ROOT_URL + "/politbusiness"
 print(f"1) REQUESTING ITEMS... ({table_url})")
-raw_items = get_raw_items_from_main_table(table_url)[:6]
+raw_items = get_raw_items_from_main_table(table_url)
 
 print("2) PROCESSING ITEMS...")
 # processed_items = [process_item(item) for item in raw_items]

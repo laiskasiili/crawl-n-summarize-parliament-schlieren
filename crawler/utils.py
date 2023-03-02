@@ -131,7 +131,8 @@ def summarize_text(text):
     api_key = os.getenv("OPENAPI_KEY")
     assert api_key, "Openai api key must be available in env variable OPENAPI_KEY"
     openai.api_key = api_key
-    summary_prefix = ""
+    summary_suffix = ""
+    orig_prompt_len = len(text)
     while True:
         try:
             summary = openai.Completion.create(
@@ -139,15 +140,14 @@ def summarize_text(text):
                 prompt=f"Summarize this for a second-grade student: {text}",
                 temperature=0.5,
                 max_tokens=400,
-                best_of=3,
+                best_of=2,
             )["choices"][0]["text"]
             break
         except openai.error.InvalidRequestError as e:
-            summary_prefix = "(Text lange, Zusammenfassung widerspiegelt nicht gesamten Text) "
             text = text[: (len(text) - 2000)]
-            print(f"Shorten text: {len(text)+2000} ->{len(text)}")
+            summary_suffix = f" | WARNUNG: Originaltext zu lang! Zusammenfassung widerspiegelt nur erste {int(len(text)/orig_prompt_len*100)}% des Originaltextes!"
     summary = summary.replace("\n", " ").replace("\r", " ").replace("\t", " ").strip()
-    return summary_prefix + " ".join(summary.split())
+    return " ".join(summary.split()) + summary_suffix
 
 
 def download_pdf(url, path):
