@@ -1,5 +1,3 @@
-console.log('main.js')
-
 $(document).ready(function () {
     // Create search input element on top of table for each column
     $('#table thead th.colSearch').each(function () {
@@ -24,7 +22,15 @@ $(document).ready(function () {
                },
             }
         },
-        ajax: 'data.json',
+        ajax: {
+            url: 'data.json',
+            dataSrc: function(json) {
+                // Update asof dom element with asof attribute from data.json. Then
+                // pass data attribute along for datatables to display.
+                document.querySelector("#asof").textContent = json.asof
+                return json.data
+            }
+        },
         columns: [
             { data: 'date' },
             {
@@ -64,9 +70,4 @@ $(document).ready(function () {
     // Small manipulations to have top pagination and nr display dropdown next to each other
     document.querySelector("#table_length").classList.add("float-start");
     document.querySelector("#table_paginate").classList.add("float-end");
-
-    // Load and display asof timestamp
-    fetch('asof.json')
-        .then(response => response.json())
-        .then(json => document.querySelector("#asof").textContent = json["asof"])
 });

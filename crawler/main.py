@@ -1,5 +1,5 @@
 from multiprocessing.pool import ThreadPool
-from constants import ROOT_URL, DATAJSON_FILE, DATAJSON_FILE_FRONTEND, ASOFJSON_FILE, ASOFJSON_FILE_FRONTEND
+from constants import ROOT_URL, DATAJSON_FILE, DATAJSON_FILE_FRONTEND
 from utils import get_raw_items_from_main_table, process_item, write_json
 import shutil
 from datetime import datetime
@@ -27,12 +27,9 @@ for item in processed_items:
             "summary": item["summary"],
         }
     )
-asof = datetime.now().strftime("%Y-%m-%d")
-write_json({"asof": asof, "data": datajson_items}, DATAJSON_FILE)
-write_json({"asof": asof}, ASOFJSON_FILE)
+write_json({"asof": datetime.now().strftime("%Y-%m-%d"), "data": datajson_items}, DATAJSON_FILE)
 
 print("4) COPY data.json...")
 shutil.copyfile(DATAJSON_FILE, DATAJSON_FILE_FRONTEND)
-shutil.copyfile(ASOFJSON_FILE, ASOFJSON_FILE_FRONTEND)
 
 print("ALL DONE!")
