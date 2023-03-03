@@ -10,6 +10,8 @@ class CategoryContainer:
     MOTION = "motion"
 
 
+FORCE_OCR_PDF_IDS = set(["4235885", "4235918"])
+
 ROOT_URL = "https://www.schlieren.ch"
 ITEM_STORAGE_FOLDER = "./data/item_storage"
 PDF_STORAGE_FOLDER = "./data/pdf_storage"

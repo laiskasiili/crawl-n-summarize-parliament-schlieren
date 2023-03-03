@@ -8,7 +8,7 @@ import PyPDF2
 
 import requests
 from constants import CategoryContainer as CC
-from constants import ITEM_STORAGE_FOLDER, PDF_STORAGE_FOLDER, ROOT_URL
+from constants import ITEM_STORAGE_FOLDER, PDF_STORAGE_FOLDER, ROOT_URL, FORCE_OCR_PDF_IDS
 from selenium.webdriver import FirefoxOptions
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -181,7 +181,7 @@ def get_pdf_summary(url_pdf, path_pdf):
     text_pdf = get_pdf_text(path_pdf)
     # Some pdf files do not have text embedded. In these cases, perform
     # optical character recognition (ocr) and then try again.
-    if not text_pdf:
+    if not text_pdf or url_pdf.split("/")[-1] in FORCE_OCR_PDF_IDS:
         print("Performing OCR...")
         perform_text_recognition_on_pdf(path_pdf)
         text_pdf = get_pdf_text(path_pdf)
