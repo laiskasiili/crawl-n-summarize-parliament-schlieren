@@ -25,50 +25,52 @@
 </head>
 
 <body>
-    <h2 class="m-2">
-        Schlieren Geschäfte zusammengefasst
-    </h2>
-    <div class="m-2">
-        <button type="button" class="me-2 btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal">Info</button><span id="mainHeader"></span>
-    </div>
-    <hr>
-    <table id="table" class="table table-striped" style="width:100%">
-        <thead>
-            <tr>
-                <th class="colSearch"></th>
-                <th class="colSearch"></th>
-                <th class="colSearch"></th>
-                <th class="colSearch"></th>
-                <th class="colSearch"></th>
-            </tr>
-            <tr>
-                <th>Datum</th>
-                <th>Titel</th>
-                <th>Kategorie</th>
-                <th>AutorIn</th>
-                <th>Zusammenfassung (automatisch generiert von PDF)</th>
-            </tr>
-        </thead>
-    </table>
-
-    <!-- Info Modal -->
-    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title" id="infoModalLabel">Information</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><small>Letztes Datenupdate: <span id="asof"></span></small></p>
-                <p><small>Author: Marc Folini</small></p>
-                <p><small>
-                    Diese Seite stellt eine modifizierte Version <a target="_blank" href="http://schlieren.ch/politbusiness">der öffentlich gelisteten Geschäfte der Stadt Schlieren</a> dar. 
-                    Es handelt sich hierbei um ein <a target="_blank" href="https://github.com/laiskasiili/crawl-n-summarize-parliament-schlieren">Hobbyprojekt</a>, 
-                    wobei <b>automatisch generierte Zusammenfassungen</b> der verfügbaren PDFs mittels Sprachmodellen von OpenAI generiert werden.
-                </small></p>
-            </div>
+    <div class="container-fluid">
+        <h2>
+            Schlieren Geschäfte zusammengefasst
+        </h2>
+        <div class="m-2">
+            <button type="button" class="me-2 btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#infoModal">Info</button><span id="mainHeader"></span>
         </div>
+        <hr>
+        <table id="table" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th class="colSearch"></th>
+                    <th class="colSearch"></th>
+                    <th class="colSearch"></th>
+                    <th class="colSearch"></th>
+                    <th class="colSearch"></th>
+                </tr>
+                <tr>
+                    <th>Datum</th>
+                    <th>Titel</th>
+                    <th>Kategorie</th>
+                    <th>Von</th>
+                    <th>Zusammenfassung (automatisch generiert von PDF)</th>
+                </tr>
+            </thead>
+        </table>
+    
+        <!-- Info Modal -->
+        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel">Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><small>Letztes Datenupdate: <span id="asof"></span></small></p>
+                    <p><small>Autor: Marc Folini</small></p>
+                    <p><small>
+                        Diese Seite stellt eine modifizierte Version <a target="_blank" href="http://schlieren.ch/politbusiness">der öffentlich gelisteten Geschäfte der Stadt Schlieren</a> dar. 
+                        Es handelt sich hierbei um ein <a target="_blank" href="https://github.com/laiskasiili/crawl-n-summarize-parliament-schlieren">Hobbyprojekt</a>, 
+                        wobei <b>automatisch generierte Zusammenfassungen</b> der verfügbaren PDFs mittels Sprachmodellen von OpenAI generiert werden.
+                    </small></p>
+                </div>
+            </div>
+            </div>
         </div>
     </div>
 </body>

@@ -8,6 +8,7 @@ $(document).ready(function () {
     // Create table
     var table = $('#table').DataTable({
         dom: 'Blprtlip',
+        scrollX: true,
         buttons: {
             buttons: [
                 {
